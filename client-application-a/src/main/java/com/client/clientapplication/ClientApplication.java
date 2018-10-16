@@ -31,14 +31,20 @@ public class ClientApplication implements CommandLineRunner {
 	@Value("${clientSecret}")
 	String clientSecret;
 
+	@Value("${authority}")
+	String authority;
+
+	@Value("${resource}")
+	String resource;
+
+	@Value("${resource-api-url}")
+	String resourceApiUrl;
+
 	@Override
 	public void run(String... args) throws Exception {
-		String authority = "https://login.microsoftonline.com/common";
 		ExecutorService service = Executors.newFixedThreadPool(1);
 
 		AuthenticationContext context = new AuthenticationContext(authority, true, service);
-
-		String resource = "https://raiselmeliangmail.onmicrosoft.com/ResourceWebAPI";
 
 		Future<AuthenticationResult> future = context.acquireToken(resource, new ClientCredential(clientId, clientSecret), null);
 		AuthenticationResult result = future.get();
@@ -51,7 +57,7 @@ public class ClientApplication implements CommandLineRunner {
 		headers.set("Authorization", "Bearer " + result.getAccessToken());
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 
-		restTemplate.exchange("http://localhost:8082/api", HttpMethod.POST, entity, String.class);
+		restTemplate.exchange(resourceApiUrl, HttpMethod.POST, entity, String.class);
 
 	}
-}
+} 
